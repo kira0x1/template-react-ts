@@ -1,5 +1,5 @@
-import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
+import { EventBus } from "../EventBus";
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -7,14 +7,11 @@ export class Game extends Scene {
     gameText: Phaser.GameObjects.Text;
     player: Phaser.GameObjects.Sprite;
     keys: {
-        up: string;
-        right: string;
-        left: string;
-        down: string;
+        up: Phaser.Input.Keyboard.Key;
+        left: Phaser.Input.Keyboard.Key;
+        right: Phaser.Input.Keyboard.Key;
+        down: Phaser.Input.Keyboard.Key;
     };
-
-    cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-    isRight = true;
 
     constructor() {
         super("Game");
@@ -22,31 +19,35 @@ export class Game extends Scene {
 
     create() {
         this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(0x1199aa);
+        this.camera.setBackgroundColor(0x8682ca);
         EventBus.emit("current-scene-ready", this);
-        this.player = this.add.sprite(150, 150, "star");
+        this.player = this.add.sprite(150, 150, "");
 
-        this.cursors = this.input
-            .keyboard!.addCapture("W,S,A,D")
-            .createCursorKeys();
+        const keys: any = this.input.keyboard!.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+        });
+
+        this.keys = keys;
     }
 
     update() {
-        const speed = 4;
-        const vel = this.isRight ? speed : -speed;
-        // this.player.x += vel * this.time.timeScale;
+        const speed = 2;
+        const vel = speed * this.time.timeScale;
 
-        if (this.cursors.right.isDown) {
-            this.player.x += vel * this.time.timeScale;
-        } else if (this.cursors.left.isDown) {
-            this.player.x -= vel * this.time.timeScale;
+        if (this.keys.right.isDown) {
+            this.player.x += vel;
+        } else if (this.keys.left.isDown) {
+            this.player.x -= vel;
         }
 
-        // if (this.player.x >= 1024 && this.isRight) {
-        //     this.isRight = false;
-        // } else if (this.player.x <= 0 && !this.isRight) {
-        //     this.isRight = true;
-        // }
+        if (this.keys.up.isDown) {
+            this.player.y -= vel;
+        } else if (this.keys.down.isDown) {
+            this.player.y += vel;
+        }
     }
 
     changeScene() {
